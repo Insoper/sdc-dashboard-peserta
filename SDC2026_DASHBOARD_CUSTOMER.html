@@ -1,0 +1,189 @@
+<!doctype html>
+<html lang="id"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Scania Driver Competition 2026 — Dashboard Customer</title>
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<style>
+:root{--navy:#142744;--navy2:#203b61;--red:#c92535;--yellow:#f6c900;--bg:#f3f5f8;--ink:#18263b;--muted:#6b7789;--line:#e2e7ee;--green:#21865a}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);font:14px/1.45 "Segoe UI",Arial,sans-serif;color:var(--ink)}
+header{background:linear-gradient(115deg,var(--navy),#1d3557);color:#fff;padding:25px clamp(16px,4vw,48px);border-bottom:5px solid var(--yellow)}
+header .top{display:flex;justify-content:space-between;gap:16px;align-items:center;flex-wrap:wrap}
+h1{font-size:clamp(20px,3vw,30px);margin:0;letter-spacing:.5px}header p{margin:5px 0 0;color:#d9e3f0}
+.tag{border:1px solid #ffffff55;border-radius:20px;padding:7px 12px;font-size:11px;letter-spacing:1px}
+main{max-width:1280px;margin:auto;padding:22px clamp(12px,3vw,36px) 40px}
+.toolbar,.panel,.kpi{background:#fff;border:1px solid var(--line);border-radius:13px;box-shadow:0 3px 12px #172b4608}
+.toolbar{padding:15px;display:flex;gap:12px;align-items:end;flex-wrap:wrap;margin-bottom:16px}
+.field{display:flex;flex-direction:column;gap:5px;min-width:150px;flex:1}label{font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px}
+select,input[type=file]{width:100%;border:1px solid #d5dce6;border-radius:8px;padding:10px;background:#fff;color:var(--ink);min-height:40px}
+.upload{max-width:260px}#refreshBtn{padding:9px 14px;border:1px solid #cfd6e0;border-radius:8px;background:#fff;cursor:pointer;font-weight:600}#refreshBtn:hover{background:#f2f4f7}
+.who{display:flex;justify-content:space-between;align-items:baseline;gap:10px;flex-wrap:wrap;margin:4px 2px 12px}.who h2{margin:0;font-size:22px;color:var(--navy)}.small{font-size:12px;color:var(--muted)}
+.kpis{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:13px;margin-bottom:16px}
+.kpi{padding:16px}.kpi .label{font-size:11px;color:var(--muted);font-weight:700;text-transform:uppercase}.kpi .value{font-size:27px;font-weight:750;margin-top:4px;color:var(--navy)}.kpi .unit{font-size:12px;font-weight:600;color:var(--muted);margin-left:4px}
+.delta{font-size:12px;font-weight:700;margin-top:2px}.up{color:var(--green)}.down{color:var(--red)}.flat{color:var(--muted)}
+.panel{padding:17px;min-width:0;margin-bottom:16px}.panel h2{font-size:15px;margin:0;color:var(--navy)}
+.panelhead{display:flex;justify-content:space-between;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:12px}
+.chips{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+.chip{border:1px solid #d5dce6;background:#fff;color:var(--ink);border-radius:20px;padding:7px 14px;font:inherit;font-size:12px;font-weight:600;cursor:pointer}
+.chip.on{background:var(--navy);border-color:var(--navy);color:#fff}
+svg{width:100%;height:auto;display:block}
+.scroll{overflow:auto}table{border-collapse:collapse;width:100%;font-size:12px}th{text-align:left;background:#f2f5f9;color:#506078;padding:10px 9px;white-space:nowrap;font-size:10px;text-transform:uppercase;letter-spacing:.35px}td{padding:10px 9px;border-bottom:1px solid #edf0f4}tbody tr:hover{background:#fafbfd}
+.empty{padding:25px;text-align:center;color:var(--muted)}
+footer{text-align:center;color:var(--muted);font-size:11px;margin-top:18px}
+@media(max-width:900px){.kpis{grid-template-columns:repeat(2,1fr)}}
+</style></head>
+<body>
+<header><div class="top"><div><h1>SCANIA DRIVER COMPETITION 2026</h1><p>Dashboard Customer · Progress Peningkatan Driver</p></div><div class="tag">SAFETY · PRODUCTIVITY · FUEL EFFICIENCY</div></div></header>
+<div id="login" style="position:fixed;inset:0;background:#0b1f3a;z-index:99;display:flex;align-items:center;justify-content:center;padding:16px"><div style="background:#fff;border-radius:14px;padding:28px;max-width:340px;width:100%;font-family:inherit"><h2 style="margin:0 0 4px;font-size:18px">SCANIA DRIVER COMPETITION 2026</h2><p style="margin:0 0 16px;color:#667;font-size:13px">Masukkan password perusahaan Anda untuk melihat progres driver.</p><input id="pw" type="password" placeholder="Password" autocomplete="off" style="width:100%;box-sizing:border-box;padding:10px;border:1px solid #cfd6e0;border-radius:8px;font-size:15px"><button id="loginBtn" type="button" style="margin-top:12px;width:100%;padding:10px;border:0;border-radius:8px;background:#f5c400;font-weight:700;font-size:15px;cursor:pointer">Masuk</button><div id="loginMsg" style="margin-top:10px;font-size:13px;color:#c0392b;min-height:16px"></div></div></div>
+<main>
+<section class="toolbar">
+ <div class="field"><label for="company">Perusahaan</label><select id="company"></select></div>
+ <div class="field"><label for="category">Kategori</label><select id="category"></select></div>
+ <div class="field"><label for="driver">Driver</label><select id="driver"></select></div>
+ <div class="field"><label>Data Google Sheets</label><button id="refreshBtn" type="button">↻ Refresh data</button></div>
+ <div class="small" id="syncStatus" style="max-width:260px">—</div>
+</section>
+<div class="who"><h2 id="driverName">—</h2><span class="small" id="driverMeta"></span></div>
+<div class="panelhead" style="margin-bottom:8px"><h2 id="curLabel" style="font-size:15px;color:var(--navy)">Hasil Bulan Ini</h2><span class="small">Panah = perubahan dibanding bulan sebelumnya</span></div>
+<section class="kpis" id="kpis"></section>
+<section class="panel"><div class="panelhead"><h2>Trend Parameter</h2><span class="small" id="trendNote"></span></div>
+<div class="chips" id="chips"></div><div id="chart"></div><div class="small" id="chartHint" style="margin-top:6px"></div></section>
+<section class="panel"><div class="panelhead"><h2>Riwayat Penilaian</h2><span class="small" id="countLabel"></span></div>
+<div class="scroll"><table><thead><tr><th>Periode</th><th>Tanggal</th><th>Theory</th><th>Overall Grade</th><th>Support</th><th>Fuel (km/l)</th><th>Brake/100 km</th><th>Accel/100 km</th><th>Jarak (km)</th></tr></thead><tbody id="history"></tbody></table></div></section>
+<footer>Scania Driver Competition 2026 · Dashboard Customer</footer>
+</main>
+<script>
+const initialData = [];
+let allData=initialData.slice();
+const $=id=>document.getElementById(id);
+const MONTHS=['JANUARI','FEBRUARI','MARET','APRIL','MEI','JUNI','JULI','AGUSTUS','SEPTEMBER','OKTOBER','NOVEMBER','DESEMBER'];
+const mi=p=>{const i=MONTHS.indexOf(String(p).trim().toUpperCase());return i<0?99:i};
+const cap=s=>s?s.charAt(0).toUpperCase()+s.slice(1).toLowerCase():s;
+const P=[
+ {key:'grade',label:'Overall Grade',unit:'',high:true,d:2,min:0,max:6,step:1,hint:'Lebih tinggi lebih baik'},
+ {key:'support',label:'Driver Support Score',unit:'',high:true,d:1,min:0,max:100,step:20,hint:'Lebih tinggi lebih baik'},
+ {key:'fuel',label:'Fuel Ratio',unit:'km/liter',high:true,d:2,min:0,max:5,step:1,hint:'Lebih tinggi lebih baik'},
+ {key:'brakeRate',label:'Harsh Brake / 100 km',unit:'',high:false,d:2,min:0,max:5,step:1,hint:'Lebih rendah lebih baik'},
+ {key:'accelRate',label:'Harsh Acceleration / 100 km',unit:'',high:false,d:2,min:0,max:5,step:1,hint:'Lebih rendah lebih baik'}
+];
+let sel='grade';
+function esc(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+function n(v){if(v===null||v===undefined||v==='')return null;let x=Number(String(v).replace(',','.'));return Number.isFinite(x)?x:null}
+function fmt(v,d=2){return v===null||v===undefined?'—':Number(v).toLocaleString('id-ID',{minimumFractionDigits:d,maximumFractionDigits:d})}
+function fillSelect(id,items){const el=$(id),old=el.value;el.innerHTML=items.map(i=>`<option value="${esc(i.v)}">${esc(i.l)}</option>`).join('');if(items.some(i=>i.v===old))el.value=old;}
+const dkey=r=>r.participantId+'|'+r.name;
+function fillCategories(){const co=$('company').value;fillSelect('category',[...new Set(allData.filter(r=>r.company===co).map(r=>r.category).filter(Boolean))].sort().map(v=>({v,l:v})));}
+function fillDrivers(){const co=$('company').value,c=$('category').value,m=new Map();allData.filter(r=>r.company===co&&r.category===c).forEach(r=>m.set(dkey(r),r.name));fillSelect('driver',[...m].sort((a,b)=>a[1].localeCompare(b[1],'id')).map(([v,l])=>({v,l})));}
+function initFilters(){fillSelect('company',[...new Set(allData.map(r=>r.company).filter(Boolean))].sort().map(v=>({v,l:v})));fillCategories();fillDrivers();}
+function delta(p,cur,prev){
+ const a=n(cur&&cur[p.key]),b=n(prev&&prev[p.key]);
+ if(a===null||b===null)return ['flat','Belum ada pembanding'];
+ const d=a-b;if(Math.abs(d)<1e-9)return ['flat','● Tidak berubah'];
+ const good=p.high?d>0:d<0;
+ return [good?'up':'down',`${d>0?'▲ +':'▼ −'}${fmt(Math.abs(d),p.d)} vs ${cap(prev.period).slice(0,3)}`];
+}
+function drawChart(recs){
+ const p=P.find(x=>x.key===sel);
+ const pts=recs.map(r=>({x:cap(r.period).slice(0,3),v:n(r[p.key])})).filter(q=>q.v!==null);
+ if(!pts.length){$('chart').innerHTML='<div class="empty">Belum ada data untuk parameter ini.</div>';$('trendNote').textContent='';return;}
+ const W=820,H=300,L=56,R=26,T=30,B=40;
+ const lo=p.min,hi=p.max;
+ const y=v=>T+(H-T-B)*(1-(Math.min(hi,Math.max(lo,v))-lo)/(hi-lo)),x=i=>pts.length===1?L+(W-L-R)/2:L+(W-L-R)*i/(pts.length-1);
+ let s=`<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Trend ${esc(p.label)}">`;
+ for(let v=lo;v<=hi+1e-9;v+=p.step){s+=`<line x1="${L}" x2="${W-R}" y1="${y(v)}" y2="${y(v)}" stroke="#e2e7ee"/><text x="${L-8}" y="${y(v)+4}" text-anchor="end" font-size="11" fill="#6b7789">${fmt(v,0)}</text>`}
+ if(pts.length>1)s+=`<polyline fill="none" stroke="#203b61" stroke-width="3" stroke-linejoin="round" points="${pts.map((q,i)=>x(i)+','+y(q.v)).join(' ')}"/>`;
+ pts.forEach((q,i)=>{const last=i===pts.length-1;s+=`<circle cx="${x(i)}" cy="${y(q.v)}" r="${last?7:5}" fill="${last?'#f6c900':'#fff'}" stroke="#203b61" stroke-width="3"/><text x="${x(i)}" y="${y(q.v)-13}" text-anchor="middle" font-size="12" font-weight="700" fill="#142744">${fmt(q.v,p.d)}</text><text x="${x(i)}" y="${H-14}" text-anchor="middle" font-size="12" fill="#6b7789">${esc(q.x)}</text>`});
+ $('chart').innerHTML=s+'</svg>';
+ if(pts.length>1){const d=pts[pts.length-1].v-pts[0].v,good=p.high?d>0:d<0;
+  $('trendNote').innerHTML=`Perubahan ${esc(pts[0].x)} → ${esc(pts[pts.length-1].x)}: <b class="${Math.abs(d)<1e-9?'flat':good?'up':'down'}">${d>0?'+':d<0?'−':''}${fmt(Math.abs(d),p.d)}</b>`;
+ }else $('trendNote').textContent='Trend tampil setelah ada minimal 2 bulan data';
+ $('chartHint').textContent=`${p.label}${p.unit?' ('+p.unit+')':''} · skala ${p.min}–${p.max} · ${p.hint}`;
+}
+function render(){
+ const co=$('company').value,c=$('category').value,dk=$('driver').value;
+ const recs=allData.filter(r=>r.company===co&&r.category===c&&dkey(r)===dk).sort((a,b)=>mi(a.period)-mi(b.period)||String(a.date).localeCompare(String(b.date)));
+ if(!recs.length){['kpis','chart','history'].forEach(i=>$(i).innerHTML='<div class="empty">Tidak ada data untuk driver ini.</div>');$('driverName').textContent='—';$('driverMeta').textContent='';return;}
+ const cur=recs[recs.length-1],prev=recs.length>1?recs[recs.length-2]:null;
+ $('driverName').textContent=cur.name;$('driverMeta').textContent=`${co} · ${c} · ID ${cur.participantId}`;
+ $('curLabel').textContent='Hasil '+cap(cur.period);
+ $('kpis').innerHTML=P.map(p=>{const [cl,t]=delta(p,cur,prev);return `<div class="kpi"><div class="label">${p.label}</div><div class="value">${fmt(n(cur[p.key]),p.d)}${p.unit?`<span class="unit">${p.unit}</span>`:''}</div><div class="delta ${cl}">${esc(t)}</div></div>`}).join('');
+ drawChart(recs);
+ $('countLabel').textContent=`${recs.length} penilaian`;
+ $('history').innerHTML=recs.slice().reverse().map(r=>`<tr><td><b>${esc(cap(r.period))}</b></td><td>${esc(r.date)}</td><td>${fmt(n(r.theory))}</td><td>${fmt(n(r.grade))}</td><td>${fmt(n(r.support))}</td><td>${fmt(n(r.fuel))}</td><td>${fmt(n(r.brakeRate))}</td><td>${fmt(n(r.accelRate))}</td><td>${fmt(n(r.distance),0)}</td></tr>`).join('');
+}
+$('chips').innerHTML=P.map(p=>`<button class="chip${p.key===sel?' on':''}" data-k="${p.key}">${p.label}</button>`).join('');
+$('chips').addEventListener('click',e=>{const b=e.target.closest('.chip');if(!b)return;sel=b.dataset.k;document.querySelectorAll('.chip').forEach(x=>x.classList.toggle('on',x===b));render();});
+function parseDate(v){if(v instanceof Date)return v.toISOString().slice(0,10);if(typeof v==='number'){let d=XLSX.SSF.parse_date_code(v);return d?`${d.y}-${String(d.m).padStart(2,'0')}-${String(d.d).padStart(2,'0')}`:''}return String(v||'')}
+/* ====== KONFIGURASI ======
+   Tempel URL Web App Google Apps Script (berakhiran /exec) di bawah ini. */
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbx2ItYga-LxTz4aiXlhTZWfeshKXSVac063s-jgpQ_EJVhbAgQ7aisHfzba2PeH2cFJ/exec';
+const AUTO_REFRESH_MIN = 5;
+let session=null;
+function parseRows(arr){
+ const header=arr[3];if(!header)throw new Error('Header tidak ditemukan di baris ke-4.');
+ const ix={};header.forEach((h,i)=>ix[String(h||'').trim()]=i);
+ const get=(row,name)=>row[ix[name]];
+ const required=['Periode','Customer ID','Nama Customer','Kategori','Participant ID','Nama Peserta','Theory Test','Overall Grade','Scania Driver Support Score','Fuel Ratio (km/liter)','Jarak Tempuh (km)','Harsh Brake Events','Harsh Acceleration Events'];
+ const missing=required.filter(k=>ix[k]===undefined);if(missing.length)throw new Error('Kolom tidak ditemukan: '+missing.join(', '));
+ const parsed=[];
+ arr.slice(4).forEach(row=>{
+  if(!get(row,'Nama Peserta'))return;
+  const dist=n(get(row,'Jarak Tempuh (km)')),br=n(get(row,'Harsh Brake Events')),ac=n(get(row,'Harsh Acceleration Events'));
+  parsed.push({
+   date:parseDate(get(row,'Tanggal Penilaian')),period:String(get(row,'Periode')||''),
+   customerId:String(get(row,'Customer ID')||''),company:String(get(row,'Nama Customer')||''),
+   category:String(get(row,'Kategori')||''),participantId:String(get(row,'Participant ID')||''),
+   name:String(get(row,'Nama Peserta')),theory:n(get(row,'Theory Test')),grade:n(get(row,'Overall Grade')),
+   support:n(get(row,'Scania Driver Support Score')),fuel:n(get(row,'Fuel Ratio (km/liter)')),
+   distance:dist,brakeEvents:br,brakeRate:dist&&br!==null?br/dist*100:null,
+   accelEvents:ac,accelRate:dist&&ac!==null?ac/dist*100:null,
+   source:String(get(row,'Sumber Data')||''),notes:String(get(row,'Catatan')||'')
+  });
+ });
+ if(!parsed.length)throw new Error('Tidak ada baris peserta pada sheet Data Penilaian.');
+ return parsed;
+}
+function applyData(parsed){
+ const c=$('category').value,d=$('driver').value;
+ allData=parsed;initFilters();
+ const keep=(id,v)=>{if(v&&[...$(id).options].some(o=>o.value===v))$(id).value=v};
+ fillCategories();keep('category',c);fillDrivers();keep('driver',d);
+ render();
+}
+function setStatus(t,err){const s=$('syncStatus');if(s){s.textContent=t;s.style.color=err?'#c0392b':''}}
+async function fetchData(pw){
+ if(!APPS_SCRIPT_URL)throw new Error('Sistem login belum dikonfigurasi (APPS_SCRIPT_URL kosong).');
+ const res=await fetch(APPS_SCRIPT_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({password:pw})});
+ if(!res.ok)throw new Error('HTTP '+res.status);
+ const out=await res.json();
+ if(!out.ok)throw new Error(out.error||'Password salah.');
+ return out;
+}
+async function loadData(){
+ if(!session)return;
+ try{
+  setStatus('Memuat data…');
+  const out=await fetchData(session.pw);
+  const parsed=parseRows(out.rows);applyData(parsed);
+  setStatus('Diperbarui '+new Date().toLocaleTimeString('id-ID')+' · '+parsed.length+' baris');
+ }catch(err){setStatus('Gagal sinkron: '+err.message+' (menampilkan data terakhir)',true)}
+}
+async function login(pw){
+ const msg=$('loginMsg');msg.textContent='Memeriksa…';
+ try{
+  const out=await fetchData(pw);
+  session={pw,company:out.company};
+  try{sessionStorage.setItem('sdcpw',pw)}catch(e){}
+  applyData(parseRows(out.rows));
+  $('company').disabled=true;
+  $('login').style.display='none';
+  setStatus('Diperbarui '+new Date().toLocaleTimeString('id-ID'));
+  setInterval(loadData,AUTO_REFRESH_MIN*60000);
+ }catch(err){msg.textContent=err.message;try{sessionStorage.removeItem('sdcpw')}catch(e){}}
+}
+$('loginBtn').addEventListener('click',()=>login($('pw').value.trim()));
+$('pw').addEventListener('keydown',e=>{if(e.key==='Enter')$('loginBtn').click()});
+$('refreshBtn').addEventListener('click',loadData);
+$('company').addEventListener('change',()=>{fillCategories();fillDrivers();render()});
+$('category').addEventListener('change',()=>{fillDrivers();render()});
+$('driver').addEventListener('change',render);
+try{const saved=sessionStorage.getItem('sdcpw');if(saved)login(saved)}catch(e){}
+</script></body></html>
