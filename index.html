@@ -38,11 +38,12 @@ footer{text-align:center;color:var(--muted);font-size:11px;margin-top:18px}
  <div class="field"><label for="company">Perusahaan</label><select id="company"></select></div>
  <div class="field"><label for="category">Kategori</label><select id="category"></select></div>
  <div class="field"><label for="driver">Driver</label><select id="driver"></select></div>
+ <div class="field"><label for="period">Periode</label><select id="period"></select></div>
  <div class="field"><label>Data Google Sheets</label><button id="refreshBtn" type="button">↻ Refresh data</button></div>
  <div class="small" id="syncStatus" style="max-width:260px">—</div>
 </section>
 <div class="who"><h2 id="driverName">—</h2><span class="small" id="driverMeta"></span></div>
-<div class="panelhead" style="margin-bottom:8px"><h2 id="curLabel" style="font-size:15px;color:var(--navy)">Hasil Bulan Ini</h2><span class="small">Panah = perubahan dibanding bulan sebelumnya</span></div>
+<div class="panelhead" style="margin-bottom:8px"><h2 id="curLabel" style="font-size:15px;color:var(--navy)">Hasil Bulan Ini</h2><span class="small" id="curHint">Panah = perubahan dibanding bulan sebelumnya</span></div>
 <section class="kpis" id="kpis"></section>
 <section class="panel"><div class="panelhead"><h2>Trend Parameter</h2><span class="small" id="trendNote"></span></div>
 <div class="chips" id="chips"></div><div id="chart"></div><div class="small" id="chartHint" style="margin-top:6px"></div></section>
@@ -71,7 +72,13 @@ function fmt(v,d=2){return v===null||v===undefined?'—':Number(v).toLocaleStrin
 function fillSelect(id,items){const el=$(id),old=el.value;el.innerHTML=items.map(i=>`<option value="${esc(i.v)}">${esc(i.l)}</option>`).join('');if(items.some(i=>i.v===old))el.value=old;}
 const dkey=r=>r.participantId+'|'+r.name;
 function fillCategories(){const co=$('company').value;fillSelect('category',[...new Set(allData.filter(r=>r.company===co).map(r=>r.category).filter(Boolean))].sort().map(v=>({v,l:v})));}
-function fillDrivers(){const co=$('company').value,c=$('category').value,m=new Map();allData.filter(r=>r.company===co&&r.category===c).forEach(r=>m.set(dkey(r),r.name));fillSelect('driver',[...m].sort((a,b)=>a[1].localeCompare(b[1],'id')).map(([v,l])=>({v,l})));}
+function fillDrivers(){const co=$('company').value,c=$('category').value,m=new Map();allData.filter(r=>r.company===co&&r.category===c).forEach(r=>m.set(dkey(r),r.name));fillSelect('driver',[...m].sort((a,b)=>a[1].localeCompare(b[1],'id')).map(([v,l])=>({v,l})));fillPeriods();}
+function fillPeriods(){
+ const co=$('company').value,c=$('category').value,dk=$('driver').value,el=$('period'),old=el.value;
+ const ps=[...new Set(allData.filter(r=>r.company===co&&r.category===c&&dkey(r)===dk).map(r=>r.period).filter(Boolean))].sort((a,b)=>mi(a)-mi(b));
+ el.innerHTML=[`<option value="ALL">Semua Periode</option>`].concat(ps.map(v=>`<option value="${esc(v)}">${esc(cap(v))}</option>`)).join('');
+ el.value=(old==='ALL'||ps.includes(old))&&old?old:(ps.length?ps[ps.length-1]:'ALL');
+}
 function initFilters(){fillSelect('company',[...new Set(allData.map(r=>r.company).filter(Boolean))].sort().map(v=>({v,l:v})));fillCategories();fillDrivers();}
 function delta(p,cur,prev){
  const a=n(cur&&cur[p.key]),b=n(prev&&prev[p.key]);
@@ -98,14 +105,19 @@ function drawChart(recs){
  $('chartHint').textContent=`${p.label}${p.unit?' ('+p.unit+')':''} · skala ${p.min}–${p.max} · ${p.hint}`;
 }
 function render(){
- const co=$('company').value,c=$('category').value,dk=$('driver').value;
+ const co=$('company').value,c=$('category').value,dk=$('driver').value,per=$('period').value||'ALL';
  const recs=allData.filter(r=>r.company===co&&r.category===c&&dkey(r)===dk).sort((a,b)=>mi(a.period)-mi(b.period)||String(a.date).localeCompare(String(b.date)));
  if(!recs.length){['kpis','chart','history'].forEach(i=>$(i).innerHTML='<div class="empty">Tidak ada data untuk driver ini.</div>');$('driverName').textContent='—';$('driverMeta').textContent='';return;}
- const cur=recs[recs.length-1],prev=recs.length>1?recs[recs.length-2]:null;
+ let idx=per==='ALL'?recs.length-1:recs.findIndex(r=>r.period===per);if(idx<0)idx=recs.length-1;
+ const view=per==='ALL'?recs:recs.slice(0,idx+1);          // trend: sampai periode terpilih
+ const cur=recs[idx],prev=idx>0?recs[idx-1]:null;
+ let sum=cur,pv=prev;
+ if(per==='ALL'){sum={};['theory',...P.map(p=>p.key)].forEach(k=>{const v=recs.map(r=>n(r[k])).filter(x=>x!==null);sum[k]=v.length?v.reduce((a,b)=>a+b,0)/v.length:null});pv=null}
  $('driverName').textContent=cur.name;$('driverMeta').textContent=`${co} · ${c} · ID ${cur.participantId}`;
- $('curLabel').textContent='Hasil '+cap(cur.period);
- $('kpis').innerHTML=P.map(p=>{const [cl,t]=delta(p,cur,prev);return `<div class="kpi"><div class="label">${p.label}</div><div class="value">${fmt(n(cur[p.key]),p.d)}${p.unit?`<span class="unit">${p.unit}</span>`:''}</div><div class="delta ${cl}">${esc(t)}</div></div>`}).join('');
- drawChart(recs);
+ $('curLabel').textContent=per==='ALL'?`Rata-rata Semua Periode (${recs.length} bulan)`:'Hasil '+cap(cur.period);
+ $('curHint').textContent=per==='ALL'?'Rata-rata nilai dari semua bulan':'Panah = perubahan dibanding bulan sebelumnya';
+ $('kpis').innerHTML=P.map(p=>{const [cl,t]=per==='ALL'?['flat','Rata-rata '+recs.length+' bulan']:delta(p,sum,pv);return `<div class="kpi"><div class="label">${p.label}</div><div class="value">${fmt(n(sum[p.key]),p.d)}${p.unit?`<span class="unit">${p.unit}</span>`:''}</div><div class="delta ${cl}">${esc(t)}</div></div>`}).join('');
+ drawChart(view);
  $('countLabel').textContent=`${recs.length} penilaian`;
  $('history').innerHTML=recs.slice().reverse().map(r=>`<tr><td><b>${esc(cap(r.period))}</b></td><td>${esc(r.date)}</td><td>${fmt(n(r.theory))}</td><td>${fmt(n(r.grade))}</td><td>${fmt(n(r.support))}</td><td>${fmt(n(r.fuel))}</td><td>${fmt(n(r.brakeRate))}</td><td>${fmt(n(r.accelRate))}</td><td>${fmt(n(r.distance),0)}</td></tr>`).join('');
 }
@@ -145,7 +157,7 @@ function applyData(parsed){
  const c=$('category').value,d=$('driver').value;
  allData=parsed;initFilters();
  const keep=(id,v)=>{if(v&&[...$(id).options].some(o=>o.value===v))$(id).value=v};
- fillCategories();keep('category',c);fillDrivers();keep('driver',d);
+ fillCategories();keep('category',c);fillDrivers();keep('driver',d);fillPeriods();
  render();
 }
 function setStatus(t,err){const s=$('syncStatus');if(s){s.textContent=t;s.style.color=err?'#c0392b':''}}
@@ -184,6 +196,7 @@ $('pw').addEventListener('keydown',e=>{if(e.key==='Enter')$('loginBtn').click()}
 $('refreshBtn').addEventListener('click',loadData);
 $('company').addEventListener('change',()=>{fillCategories();fillDrivers();render()});
 $('category').addEventListener('change',()=>{fillDrivers();render()});
-$('driver').addEventListener('change',render);
+$('driver').addEventListener('change',()=>{fillPeriods();render()});
+$('period').addEventListener('change',render);
 try{const saved=sessionStorage.getItem('sdcpw');if(saved)login(saved)}catch(e){}
 </script></body></html>
