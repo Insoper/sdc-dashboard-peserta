@@ -14,7 +14,7 @@ main{max-width:1280px;margin:auto;padding:22px clamp(12px,3vw,36px) 40px}
 .toolbar{padding:15px;display:flex;gap:12px;align-items:end;flex-wrap:wrap;margin-bottom:16px}
 .field{display:flex;flex-direction:column;gap:5px;min-width:150px;flex:1}label{font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px}
 select,input[type=file]{width:100%;border:1px solid #d5dce6;border-radius:8px;padding:10px;background:#fff;color:var(--ink);min-height:40px}
-.upload{max-width:260px}#refreshBtn{padding:9px 14px;border:1px solid #cfd6e0;border-radius:8px;background:#fff;cursor:pointer;font-weight:600}#refreshBtn:hover{background:#f2f4f7}
+.upload{max-width:260px}#logoutBtn,#refreshBtn{padding:9px 14px;border:1px solid #cfd6e0;border-radius:8px;background:#fff;cursor:pointer;font-weight:600}#logoutBtn:hover,#refreshBtn:hover{background:#f2f4f7}
 .who{display:flex;justify-content:space-between;align-items:baseline;gap:10px;flex-wrap:wrap;margin:4px 2px 12px}.who h2{margin:0;font-size:22px;color:var(--navy)}.small{font-size:12px;color:var(--muted)}
 .kpis{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:13px;margin-bottom:16px}
 .kpi{padding:16px}.kpi .label{font-size:11px;color:var(--muted);font-weight:700;text-transform:uppercase}.kpi .value{font-size:27px;font-weight:750;margin-top:4px;color:var(--navy)}.kpi .unit{font-size:12px;font-weight:600;color:var(--muted);margin-left:4px}
@@ -40,6 +40,7 @@ footer{text-align:center;color:var(--muted);font-size:11px;margin-top:18px}
  <div class="field"><label for="driver">Driver</label><select id="driver"></select></div>
  <div class="field"><label for="period">Periode</label><select id="period"></select></div>
  <div class="field"><label>Data Google Sheets</label><button id="refreshBtn" type="button">↻ Refresh data</button></div>
+ <div class="field"><label>Akun</label><button id="logoutBtn" type="button">Keluar</button></div>
  <div class="small" id="syncStatus" style="max-width:260px">—</div>
 </section>
 <div class="who"><h2 id="driverName">—</h2><span class="small" id="driverMeta"></span></div>
@@ -128,7 +129,7 @@ function parseDate(v){if(v instanceof Date)return v.toISOString().slice(0,10);if
    Tempel URL Web App Google Apps Script (berakhiran /exec) di bawah ini. */
 const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbx2ItYga-LxTz4aiXlhTZWfeshKXSVac063s-jgpQ_EJVhbAgQ7aisHfzba2PeH2cFJ/exec';
 const AUTO_REFRESH_MIN = 5;
-let session=null;
+let session=null,timer=null;
 function parseRows(arr){
  const header=arr[3];if(!header)throw new Error('Header tidak ditemukan di baris ke-4.');
  const ix={};header.forEach((h,i)=>ix[String(h||'').trim()]=i);
@@ -188,12 +189,24 @@ async function login(pw){
   $('company').disabled=true;
   $('login').style.display='none';
   setStatus('Diperbarui '+new Date().toLocaleTimeString('id-ID'));
-  setInterval(loadData,AUTO_REFRESH_MIN*60000);
+  clearInterval(timer);timer=setInterval(loadData,AUTO_REFRESH_MIN*60000);
  }catch(err){msg.textContent=err.message;try{sessionStorage.removeItem('sdcpw')}catch(e){}}
 }
 $('loginBtn').addEventListener('click',()=>login($('pw').value.trim()));
 $('pw').addEventListener('keydown',e=>{if(e.key==='Enter')$('loginBtn').click()});
 $('refreshBtn').addEventListener('click',loadData);
+function logout(){
+ session=null;clearInterval(timer);timer=null;
+ try{sessionStorage.removeItem('sdcpw')}catch(e){}
+ allData=[];
+ ['company','category','driver','period'].forEach(id=>{$(id).innerHTML=''});
+ $('company').disabled=false;
+ ['kpis','chart','history'].forEach(i=>{$(i).innerHTML=''});
+ $('driverName').textContent='—';$('driverMeta').textContent='';$('trendNote').textContent='';$('chartHint').textContent='';
+ $('pw').value='';$('loginMsg').textContent='';
+ $('login').style.display='flex';$('pw').focus();
+}
+$('logoutBtn').addEventListener('click',logout);
 $('company').addEventListener('change',()=>{fillCategories();fillDrivers();render()});
 $('category').addEventListener('change',()=>{fillDrivers();render()});
 $('driver').addEventListener('change',()=>{fillPeriods();render()});
