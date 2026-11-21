@@ -186,7 +186,7 @@ async function login(pw){
   session={pw,company:out.company};
   try{sessionStorage.setItem('sdcpw',pw)}catch(e){}
   applyData(parseRows(out.rows));
-  $('company').disabled=true;
+  $('company').disabled=$('company').options.length<=1; // admin (banyak perusahaan) bisa memilih
   $('login').style.display='none';
   setStatus('Diperbarui '+new Date().toLocaleTimeString('id-ID'));
   clearInterval(timer);timer=setInterval(loadData,AUTO_REFRESH_MIN*60000);
