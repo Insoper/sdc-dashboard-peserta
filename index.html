@@ -14,7 +14,8 @@ h1{font-size:clamp(20px,3vw,30px);margin:0;letter-spacing:.5px}header p{margin:5
 .brand{display:flex;align-items:center;gap:16px;background:#fff;padding:9px 16px;border-radius:10px}
 .brand img{height:42px;width:auto;max-width:130px;object-fit:contain;display:block}
 .brand .sep{width:1px;height:30px;background:var(--line)}
-.banner{position:relative;display:grid;grid-template-columns:1fr 1fr;height:clamp(150px,22vw,260px);background:var(--navy);overflow:hidden}
+.banner{position:relative;display:grid;grid-template-columns:1fr 1fr;height:clamp(110px,12vw,170px);background:var(--navy);overflow:hidden}
+.banner img:first-child{object-position:center 62%}.banner img:last-child{object-position:center 58%}
 .banner img{width:100%;height:100%;object-fit:cover;display:block}
 .banner::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,#14274400 45%,#142744b3 100%);pointer-events:none}
 .banner.single{grid-template-columns:1fr}
@@ -38,7 +39,37 @@ svg{width:100%;height:auto;display:block}
 .empty{padding:25px;text-align:center;color:var(--muted)}
 footer{text-align:center;color:var(--muted);font-size:11px;margin-top:18px}
 @media(max-width:900px){.kpis{grid-template-columns:repeat(2,1fr)}}
-@media(max-width:480px){.brand img{height:32px;max-width:100px}.banner{height:130px}}
+@media(max-width:480px){.brand img{height:32px;max-width:100px}.banner{height:100px}}
+/* === Header: tombol keluar === */
+.headright{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.hbtn{display:inline-flex;align-items:center;gap:8px;padding:8px 14px;border:1px solid #ffffff66;border-radius:20px;background:transparent;color:#fff;font:inherit;font-size:12px;font-weight:600;cursor:pointer}
+.hbtn:hover{background:#ffffff1f}.hbtn svg{width:16px;height:16px}
+.hbtn:focus-visible,.pwrap button:focus-visible,#loginBtn:focus-visible{outline:3px solid var(--yellow);outline-offset:2px}
+/* === Ikon loading === */
+.spin{display:inline-block;width:14px;height:14px;border:2px solid currentColor;border-right-color:transparent;border-radius:50%;animation:sp .7s linear infinite;margin-right:8px;flex:none}
+@keyframes sp{to{transform:rotate(360deg)}}
+@media(prefers-reduced-motion:reduce){.spin{animation-duration:2s}}
+#refreshBtn:disabled{opacity:.7;cursor:progress}
+/* === Jendela login === */
+#login{position:fixed;inset:0;z-index:99;display:flex;align-items:center;justify-content:center;padding:16px;background:#0b1f3a;overflow:auto}
+#login .bg{position:absolute;inset:0;display:grid;grid-template-columns:1fr 1fr}
+#login .bg img{width:100%;height:100%;object-fit:cover;display:block}
+#login .bg::after{content:"";position:absolute;inset:0;background:rgba(11,31,58,.84)}
+.lwrap{position:relative;z-index:1;width:100%;max-width:420px}
+.lcard{background:#fff;border-radius:14px;border-top:5px solid var(--yellow);padding:24px 28px 26px;box-shadow:0 20px 50px #0009}
+.lcard .brand{justify-content:center;padding:0 0 14px;margin:0 0 16px;border-radius:0;border-bottom:1px solid var(--line)}
+.lcard h2{margin:0 0 4px;font-size:18px;color:var(--navy)}
+.lcard p{margin:0 0 16px;color:#667;font-size:13px}
+.pwrap{position:relative}
+.pwrap input{width:100%;padding:11px 46px 11px 12px;border:1px solid #cfd6e0;border-radius:8px;font-size:15px;font-family:inherit}
+.pwrap input:focus{outline:2px solid var(--navy2);outline-offset:0;border-color:transparent}
+.pwrap button{position:absolute;right:4px;top:50%;transform:translateY(-50%);width:38px;height:38px;border:0;background:none;cursor:pointer;color:#6b7789;border-radius:8px;display:flex;align-items:center;justify-content:center}
+.pwrap button:hover{background:#f2f4f7;color:var(--navy)}
+.pwrap svg{width:20px;height:20px}.pwrap .ico-off{display:none}.pwrap.show .ico-on{display:none}.pwrap.show .ico-off{display:block}
+#loginBtn{margin-top:12px;width:100%;padding:11px;border:0;border-radius:8px;background:#f5c400;color:#111;font:inherit;font-weight:700;font-size:15px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+#loginBtn:hover{background:#e6b800}#loginBtn:disabled{opacity:.8;cursor:progress}
+#loginMsg{margin-top:10px;font-size:13px;color:#c0392b}#loginMsg:empty{display:none}
+.lfoot{margin-top:14px;text-align:center;font-size:11px;color:#a9bbd2}
 </style></head>
 <body>
 <header><div class="top">
@@ -50,13 +81,39 @@ footer{text-align:center;color:var(--muted);font-size:11px;margin-top:18px}
   </div>
   <div><h1>SCANIA DRIVER COMPETITION 2026</h1><p>Dashboard Customer · Progress Peningkatan Driver</p></div>
  </div>
- <div class="tag">SAFETY · PRODUCTIVITY · FUEL EFFICIENCY</div>
+ <div class="headright">
+  <div class="tag">SAFETY · PRODUCTIVITY · FUEL EFFICIENCY</div>
+  <button id="logoutBtn" class="hbtn" type="button" title="Keluar dan kembali ke halaman login"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>Keluar</button>
+ </div>
 </div></header>
 <div class="banner">
  <img src="assets/scania-truck.jpg" alt="Scania Truck" onerror="this.remove();document.querySelector('.banner').classList.add('single')">
  <img src="assets/scania-bus.jpg" alt="Scania Bus" onerror="this.remove();document.querySelector('.banner').classList.add('single')">
 </div>
-<div id="login" style="position:fixed;inset:0;background:#0b1f3a;z-index:99;display:flex;align-items:center;justify-content:center;padding:16px"><div style="background:#fff;border-radius:14px;padding:0;overflow:hidden;max-width:400px;width:100%;font-family:inherit"><div class="banner" style="height:130px"><img src="assets/scania-truck.jpg" alt="Scania Truck" onerror="var p=this.parentNode;this.remove();p.classList.add('single')"><img src="assets/scania-bus.jpg" alt="Scania Bus" onerror="var p=this.parentNode;this.remove();p.classList.add('single')"></div><div style="padding:24px 28px 28px"><div class="brand" style="justify-content:center;padding:0 0 14px;margin:0 0 14px;border-radius:0;border-bottom:1px solid #e2e7ee"><img src="assets/logo-ut.png" alt="United Tractors" onerror="this.style.display='none'"><span class="sep"></span><img src="assets/logo-scania.png" alt="Scania" onerror="this.style.display='none'"></div><h2 style="margin:0 0 4px;font-size:18px">SCANIA DRIVER COMPETITION 2026</h2><p style="margin:0 0 16px;color:#667;font-size:13px">Masukkan password perusahaan Anda untuk melihat progres driver.</p><input id="pw" type="password" placeholder="Password" autocomplete="off" style="width:100%;box-sizing:border-box;padding:10px;border:1px solid #cfd6e0;border-radius:8px;font-size:15px"><button id="loginBtn" type="button" style="margin-top:12px;width:100%;padding:10px;border:0;border-radius:8px;background:#f5c400;font-weight:700;font-size:15px;cursor:pointer">Masuk</button><div id="loginMsg" style="margin-top:10px;font-size:13px;color:#c0392b;min-height:16px"></div></div></div></div>
+<div id="login">
+ <div class="bg">
+  <img src="assets/scania-truck.jpg" alt="" onerror="var p=this.parentNode;this.remove();p.style.gridTemplateColumns='1fr'">
+  <img src="assets/scania-bus.jpg" alt="" onerror="var p=this.parentNode;this.remove();p.style.gridTemplateColumns='1fr'">
+ </div>
+ <div class="lwrap">
+  <div class="lcard">
+   <div class="brand">
+    <img src="assets/logo-ut.png" alt="United Tractors" onerror="this.style.display='none'">
+    <span class="sep"></span>
+    <img src="assets/logo-scania.png" alt="Scania" onerror="this.style.display='none'">
+   </div>
+   <h2>SCANIA DRIVER COMPETITION 2026</h2>
+   <p>Masukkan password perusahaan Anda untuk melihat progres driver.</p>
+   <div class="pwrap" id="pwWrap">
+    <input id="pw" type="password" placeholder="Password" autocomplete="off" aria-label="Password">
+    <button id="pwToggle" type="button" aria-label="Tampilkan password" aria-pressed="false"><svg class="ico-on" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg><svg class="ico-off" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg></button>
+   </div>
+   <button id="loginBtn" type="button">Masuk</button>
+   <div id="loginMsg" role="alert"></div>
+  </div>
+  <div class="lfoot">Scania Driver Competition 2026 · United Tractors</div>
+ </div>
+</div>
 <main>
 <section class="toolbar">
  <div class="field"><label for="company">Perusahaan</label><select id="company"></select></div>
@@ -64,7 +121,6 @@ footer{text-align:center;color:var(--muted);font-size:11px;margin-top:18px}
  <div class="field"><label for="driver">Driver</label><select id="driver"></select></div>
  <div class="field"><label for="period">Periode</label><select id="period"></select></div>
  <div class="field"><label>Data Google Sheets</label><button id="refreshBtn" type="button">↻ Refresh data</button></div>
- <div class="field"><label>Akun</label><button id="logoutBtn" type="button">Keluar</button></div>
  <div class="small" id="syncStatus" style="max-width:260px">—</div>
 </section>
 <div class="who"><h2 id="driverName">—</h2><span class="small" id="driverMeta"></span></div>
@@ -196,15 +252,19 @@ async function fetchData(pw){
 }
 async function loadData(){
  if(!session)return;
+ const b=$('refreshBtn');b.disabled=true;b.innerHTML='<span class="spin"></span>Memuat…';
  try{
   setStatus('Memuat data…');
   const out=await fetchData(session.pw);
   const parsed=parseRows(out.rows);applyData(parsed);
   setStatus('Diperbarui '+new Date().toLocaleTimeString('id-ID')+' · '+parsed.length+' baris');
  }catch(err){setStatus('Gagal sinkron: '+err.message+' (menampilkan data terakhir)',true)}
+ finally{b.disabled=false;b.textContent='↻ Refresh data'}
 }
 async function login(pw){
- const msg=$('loginMsg');msg.textContent='Memeriksa…';
+ const msg=$('loginMsg'),btn=$('loginBtn');
+ if(!pw){msg.textContent='Masukkan password terlebih dahulu.';$('pw').focus();return}
+ msg.textContent='';btn.disabled=true;btn.innerHTML='<span class="spin"></span>Memeriksa…';
  try{
   const out=await fetchData(pw);
   session={pw,company:out.company};
@@ -215,8 +275,14 @@ async function login(pw){
   setStatus('Diperbarui '+new Date().toLocaleTimeString('id-ID'));
   clearInterval(timer);timer=setInterval(loadData,AUTO_REFRESH_MIN*60000);
  }catch(err){msg.textContent=err.message;try{sessionStorage.removeItem('sdcpw')}catch(e){}}
+ finally{btn.disabled=false;btn.textContent='Masuk'}
 }
 $('loginBtn').addEventListener('click',()=>login($('pw').value.trim()));
+$('pwToggle').addEventListener('click',()=>{
+ const i=$('pw'),show=i.type==='password',b=$('pwToggle');
+ i.type=show?'text':'password';$('pwWrap').classList.toggle('show',show);
+ b.setAttribute('aria-pressed',String(show));b.setAttribute('aria-label',show?'Sembunyikan password':'Tampilkan password');i.focus();
+});
 $('pw').addEventListener('keydown',e=>{if(e.key==='Enter')$('loginBtn').click()});
 $('refreshBtn').addEventListener('click',loadData);
 function logout(){
@@ -227,7 +293,10 @@ function logout(){
  $('company').disabled=false;
  ['kpis','chart','history'].forEach(i=>{$(i).innerHTML=''});
  $('driverName').textContent='—';$('driverMeta').textContent='';$('trendNote').textContent='';$('chartHint').textContent='';
- $('pw').value='';$('loginMsg').textContent='';
+ $('pw').value='';$('pw').type='password';$('pwWrap').classList.remove('show');
+ $('pwToggle').setAttribute('aria-pressed','false');$('pwToggle').setAttribute('aria-label','Tampilkan password');
+ $('loginMsg').textContent='';
+ window.scrollTo(0,0);
  $('login').style.display='flex';$('pw').focus();
 }
 $('logoutBtn').addEventListener('click',logout);
