@@ -9,6 +9,15 @@ header{background:linear-gradient(115deg,var(--navy),#1d3557);color:#fff;padding
 header .top{display:flex;justify-content:space-between;gap:16px;align-items:center;flex-wrap:wrap}
 h1{font-size:clamp(20px,3vw,30px);margin:0;letter-spacing:.5px}header p{margin:5px 0 0;color:#d9e3f0}
 .tag{border:1px solid #ffffff55;border-radius:20px;padding:7px 12px;font-size:11px;letter-spacing:1px}
+/* === Logo & banner === */
+.headleft{display:flex;align-items:center;gap:20px;flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:16px;background:#fff;padding:9px 16px;border-radius:10px}
+.brand img{height:42px;width:auto;max-width:130px;object-fit:contain;display:block}
+.brand .sep{width:1px;height:30px;background:var(--line)}
+.banner{position:relative;display:grid;grid-template-columns:1fr 1fr;height:clamp(150px,22vw,260px);background:var(--navy);overflow:hidden}
+.banner img{width:100%;height:100%;object-fit:cover;display:block}
+.banner::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,#14274400 45%,#142744b3 100%);pointer-events:none}
+.banner.single{grid-template-columns:1fr}
 main{max-width:1280px;margin:auto;padding:22px clamp(12px,3vw,36px) 40px}
 .toolbar,.panel,.kpi{background:#fff;border:1px solid var(--line);border-radius:13px;box-shadow:0 3px 12px #172b4608}
 .toolbar{padding:15px;display:flex;gap:12px;align-items:end;flex-wrap:wrap;margin-bottom:16px}
@@ -29,10 +38,25 @@ svg{width:100%;height:auto;display:block}
 .empty{padding:25px;text-align:center;color:var(--muted)}
 footer{text-align:center;color:var(--muted);font-size:11px;margin-top:18px}
 @media(max-width:900px){.kpis{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:480px){.brand img{height:32px;max-width:100px}.banner{height:130px}}
 </style></head>
 <body>
-<header><div class="top"><div><h1>SCANIA DRIVER COMPETITION 2026</h1><p>Dashboard Customer · Progress Peningkatan Driver</p></div><div class="tag">SAFETY · PRODUCTIVITY · FUEL EFFICIENCY</div></div></header>
-<div id="login" style="position:fixed;inset:0;background:#0b1f3a;z-index:99;display:flex;align-items:center;justify-content:center;padding:16px"><div style="background:#fff;border-radius:14px;padding:28px;max-width:340px;width:100%;font-family:inherit"><h2 style="margin:0 0 4px;font-size:18px">SCANIA DRIVER COMPETITION 2026</h2><p style="margin:0 0 16px;color:#667;font-size:13px">Masukkan password perusahaan Anda untuk melihat progres driver.</p><input id="pw" type="password" placeholder="Password" autocomplete="off" style="width:100%;box-sizing:border-box;padding:10px;border:1px solid #cfd6e0;border-radius:8px;font-size:15px"><button id="loginBtn" type="button" style="margin-top:12px;width:100%;padding:10px;border:0;border-radius:8px;background:#f5c400;font-weight:700;font-size:15px;cursor:pointer">Masuk</button><div id="loginMsg" style="margin-top:10px;font-size:13px;color:#c0392b;min-height:16px"></div></div></div>
+<header><div class="top">
+ <div class="headleft">
+  <div class="brand">
+   <img src="assets/logo-ut.png" alt="United Tractors" onerror="this.style.display='none'">
+   <span class="sep"></span>
+   <img src="assets/logo-scania.png" alt="Scania" onerror="this.style.display='none'">
+  </div>
+  <div><h1>SCANIA DRIVER COMPETITION 2026</h1><p>Dashboard Customer · Progress Peningkatan Driver</p></div>
+ </div>
+ <div class="tag">SAFETY · PRODUCTIVITY · FUEL EFFICIENCY</div>
+</div></header>
+<div class="banner">
+ <img src="assets/scania-truck.jpg" alt="Scania Truck" onerror="this.remove();document.querySelector('.banner').classList.add('single')">
+ <img src="assets/scania-bus.jpg" alt="Scania Bus" onerror="this.remove();document.querySelector('.banner').classList.add('single')">
+</div>
+<div id="login" style="position:fixed;inset:0;background:#0b1f3a;z-index:99;display:flex;align-items:center;justify-content:center;padding:16px"><div style="background:#fff;border-radius:14px;padding:0;overflow:hidden;max-width:400px;width:100%;font-family:inherit"><div class="banner" style="height:130px"><img src="assets/scania-truck.jpg" alt="Scania Truck" onerror="var p=this.parentNode;this.remove();p.classList.add('single')"><img src="assets/scania-bus.jpg" alt="Scania Bus" onerror="var p=this.parentNode;this.remove();p.classList.add('single')"></div><div style="padding:24px 28px 28px"><div class="brand" style="justify-content:center;padding:0 0 14px;margin:0 0 14px;border-radius:0;border-bottom:1px solid #e2e7ee"><img src="assets/logo-ut.png" alt="United Tractors" onerror="this.style.display='none'"><span class="sep"></span><img src="assets/logo-scania.png" alt="Scania" onerror="this.style.display='none'"></div><h2 style="margin:0 0 4px;font-size:18px">SCANIA DRIVER COMPETITION 2026</h2><p style="margin:0 0 16px;color:#667;font-size:13px">Masukkan password perusahaan Anda untuk melihat progres driver.</p><input id="pw" type="password" placeholder="Password" autocomplete="off" style="width:100%;box-sizing:border-box;padding:10px;border:1px solid #cfd6e0;border-radius:8px;font-size:15px"><button id="loginBtn" type="button" style="margin-top:12px;width:100%;padding:10px;border:0;border-radius:8px;background:#f5c400;font-weight:700;font-size:15px;cursor:pointer">Masuk</button><div id="loginMsg" style="margin-top:10px;font-size:13px;color:#c0392b;min-height:16px"></div></div></div></div>
 <main>
 <section class="toolbar">
  <div class="field"><label for="company">Perusahaan</label><select id="company"></select></div>
