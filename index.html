@@ -14,7 +14,7 @@ h1{font-size:clamp(20px,3vw,30px);margin:0;letter-spacing:.5px}header p{margin:5
 .brand{display:flex;align-items:center;gap:16px;background:#fff;padding:9px 16px;border-radius:10px}
 .brand img{height:48px;width:auto;max-width:150px;object-fit:contain;display:block}.brand img:first-child{height:58px;max-width:200px}
 .brand .sep{width:1px;height:30px;background:var(--line)}
-.banner{position:relative;display:grid;grid-template-columns:1fr 1fr;height:clamp(110px,12vw,170px);background:var(--navy);overflow:hidden}
+.banner{position:relative;display:grid;grid-template-columns:1fr 1fr;height:clamp(150px,15vw,210px);width:calc(100% - 2*clamp(12px,3vw,36px));max-width:1208px;margin:16px auto 0;border-radius:12px;background:var(--navy);overflow:hidden}
 .banner img:first-child{object-position:center 62%}.banner img:last-child{object-position:center 58%}
 .banner img{width:100%;height:100%;object-fit:cover;display:block}
 .banner::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,#14274400 45%,#142744b3 100%);pointer-events:none}
@@ -43,14 +43,18 @@ footer{text-align:center;color:var(--muted);font-size:11px;margin-top:18px}
  header{padding:16px 14px 14px}
  header .top{display:grid;grid-template-columns:1fr auto;gap:12px 10px;align-items:center}
  .headleft{display:contents}
- .brand{grid-column:1;justify-self:start;padding:7px 12px;gap:12px}
- .brand img{height:30px;max-width:100px}.brand img:first-child{height:38px;max-width:130px}
+ header .top{align-items:stretch}
+ .brand{grid-column:1;justify-self:start}
+ header .brand{padding:6px 10px;gap:8px;align-items:center}
+ header .brand img:first-child{width:100px;height:auto;max-width:100px}
+ header .brand img:last-child{width:78px;height:auto;max-width:78px}
+ .lcard .brand img{height:30px;max-width:100px}.lcard .brand img:first-child{height:38px;max-width:130px}
  .htitle{grid-column:1/-1;grid-row:2}
  h1{font-size:19px;line-height:1.2}header p{font-size:13px}
- .headright{grid-column:2;grid-row:1}
+ .headright{grid-column:2;grid-row:1;align-items:stretch}
  .tag{display:none}
- .hbtn{min-height:38px;padding:8px 14px}
- .banner{height:96px}
+ .hbtn{padding:0 14px;height:100%}
+ .banner{height:96px;width:100%;max-width:none;margin:0;border-radius:0}
  main{padding-top:14px}
  .toolbar{display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:14px}
  .field{min-width:0}.field.wide,.sync{grid-column:1/-1}.sync{max-width:none}
@@ -73,7 +77,9 @@ footer{text-align:center;color:var(--muted);font-size:11px;margin-top:18px}
 }
 @media(max-width:380px){.kpi .value{font-size:20px}.kpi .unit{display:block;margin:0}}
 /* === Header: tombol keluar === */
-.headright{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.headleft{flex:1 1 0;min-width:0}
+.headright{display:flex;align-items:center;gap:12px;flex-wrap:wrap;flex:none}
+@media(max-width:1500px){.tag{display:none}}
 .hbtn{display:inline-flex;align-items:center;gap:8px;padding:8px 14px;border:1px solid #ffffff66;border-radius:20px;background:transparent;color:#fff;font:inherit;font-size:12px;font-weight:600;cursor:pointer}
 #logoutBtn{background:var(--red);border-color:var(--red);color:#fff}#logoutBtn:hover{background:#a81d2b;border-color:#a81d2b}.hbtn svg{width:16px;height:16px}
 .hbtn:focus-visible,.pwrap button:focus-visible,#loginBtn:focus-visible{outline:3px solid var(--yellow);outline-offset:2px}
