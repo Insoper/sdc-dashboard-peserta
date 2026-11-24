@@ -4,7 +4,7 @@
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <style>
 :root{--navy:#142744;--navy2:#203b61;--red:#c92535;--yellow:#f6c900;--bg:#f3f5f8;--ink:#18263b;--muted:#6b7789;--line:#e2e7ee;--green:#21865a}
-*{box-sizing:border-box}body{margin:0;background:var(--bg);font:14px/1.45 "Segoe UI",Arial,sans-serif;color:var(--ink)}
+*{box-sizing:border-box}html{-webkit-text-size-adjust:100%}body{margin:0;background:var(--bg);font:14px/1.45 "Segoe UI",Arial,sans-serif;color:var(--ink)}
 header{background:linear-gradient(115deg,var(--navy),#1d3557);color:#fff;padding:25px clamp(16px,4vw,48px);border-bottom:5px solid var(--yellow)}
 header .top{display:flex;justify-content:space-between;gap:16px;align-items:center;flex-wrap:wrap}
 h1{font-size:clamp(20px,3vw,30px);margin:0;letter-spacing:.5px}header p{margin:5px 0 0;color:#d9e3f0}
@@ -24,7 +24,7 @@ main{max-width:1280px;margin:auto;padding:22px clamp(12px,3vw,36px) 40px}
 .toolbar{padding:15px;display:flex;gap:12px;align-items:end;flex-wrap:wrap;margin-bottom:16px}
 .field{display:flex;flex-direction:column;gap:5px;min-width:150px;flex:1}label{font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px}
 select,input[type=file]{width:100%;border:1px solid #d5dce6;border-radius:8px;padding:10px;background:#fff;color:var(--ink);min-height:40px}
-.upload{max-width:260px}#logoutBtn,#refreshBtn{padding:9px 14px;border:1px solid #cfd6e0;border-radius:8px;background:#fff;cursor:pointer;font-weight:600}#logoutBtn:hover,#refreshBtn:hover{background:#f2f4f7}
+.upload{max-width:260px}.sync{max-width:260px}#logoutBtn,#refreshBtn{padding:9px 14px;border:1px solid #cfd6e0;border-radius:8px;background:#fff;cursor:pointer;font-weight:600}#logoutBtn:hover,#refreshBtn:hover{background:#f2f4f7}
 .who{display:flex;justify-content:space-between;align-items:baseline;gap:10px;flex-wrap:wrap;margin:4px 2px 12px}.who h2{margin:0;font-size:22px;color:var(--navy)}.small{font-size:12px;color:var(--muted)}
 .kpis{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:13px;margin-bottom:16px}
 .kpi{padding:16px}.kpi .label{font-size:11px;color:var(--muted);font-weight:700;text-transform:uppercase}.kpi .value{font-size:27px;font-weight:750;margin-top:4px;color:var(--navy)}.kpi .unit{font-size:12px;font-weight:600;color:var(--muted);margin-left:4px}
@@ -38,12 +38,44 @@ svg{width:100%;height:auto;display:block}
 .scroll{overflow:auto}table{border-collapse:collapse;width:100%;font-size:12px}th{text-align:left;background:#f2f5f9;color:#506078;padding:10px 9px;white-space:nowrap;font-size:10px;text-transform:uppercase;letter-spacing:.35px}td{padding:10px 9px;border-bottom:1px solid #edf0f4}tbody tr:hover{background:#fafbfd}
 .empty{padding:25px;text-align:center;color:var(--muted)}
 footer{text-align:center;color:var(--muted);font-size:11px;margin-top:18px}
-@media(max-width:900px){.kpis{grid-template-columns:repeat(2,1fr)}}
-@media(max-width:480px){.brand img{height:32px;max-width:100px}.banner{height:100px}}
+@media(max-width:900px){.kpis{grid-template-columns:repeat(2,1fr)}.kpi:last-child{grid-column:1/-1}}
+@media(max-width:640px){
+ header{padding:16px 14px 14px}
+ header .top{display:grid;grid-template-columns:1fr auto;gap:12px 10px;align-items:center}
+ .headleft{display:contents}
+ .brand{grid-column:1;justify-self:start;padding:7px 12px;gap:12px}
+ .brand img{height:30px;max-width:96px}
+ .htitle{grid-column:1/-1;grid-row:2}
+ h1{font-size:19px;line-height:1.2}header p{font-size:13px}
+ .headright{grid-column:2;grid-row:1}
+ .tag{display:none}
+ .hbtn{min-height:38px;padding:8px 14px}
+ .banner{height:96px}
+ main{padding-top:14px}
+ .toolbar{display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:14px}
+ .field{min-width:0}.field.wide,.sync{grid-column:1/-1}.sync{max-width:none}
+ select{font-size:16px;min-height:44px}
+ #refreshBtn{min-height:44px;width:100%}
+ .who h2{font-size:19px}
+ .kpis{gap:10px}.kpi{padding:12px}.kpi .value{font-size:23px}.kpi .label{font-size:10px}
+ .panel{padding:14px}
+ .chip{padding:8px 12px}
+ #login{padding:12px}.lcard{padding:25px 20px 22px}
+ .scroll{overflow:visible}
+ table.hist,table.hist tbody{display:block}
+ table.hist thead{display:none}
+ table.hist tr{display:grid;grid-template-columns:1fr 1fr;gap:10px 14px;padding:12px 14px;margin-bottom:10px;border:1px solid var(--line);border-radius:10px;background:#fff}
+ table.hist tr:hover{background:#fff}
+ table.hist td{display:flex;flex-direction:column;gap:2px;padding:0;border:0;font-size:14px;font-weight:600;color:var(--navy)}
+ table.hist td::before{content:attr(data-label);font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.35px}
+ table.hist td:first-child{grid-column:1/-1;font-size:15px;padding-bottom:8px;border-bottom:1px solid #edf0f4}
+ table.hist td:first-child::before{content:none}
+}
+@media(max-width:380px){.kpi .value{font-size:20px}.kpi .unit{display:block;margin:0}}
 /* === Header: tombol keluar === */
 .headright{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
 .hbtn{display:inline-flex;align-items:center;gap:8px;padding:8px 14px;border:1px solid #ffffff66;border-radius:20px;background:transparent;color:#fff;font:inherit;font-size:12px;font-weight:600;cursor:pointer}
-.hbtn:hover{background:#ffffff1f}.hbtn svg{width:16px;height:16px}
+#logoutBtn{background:var(--red);border-color:var(--red);color:#fff}#logoutBtn:hover{background:#a81d2b;border-color:#a81d2b}.hbtn svg{width:16px;height:16px}
 .hbtn:focus-visible,.pwrap button:focus-visible,#loginBtn:focus-visible{outline:3px solid var(--yellow);outline-offset:2px}
 /* === Ikon loading === */
 .spin{display:inline-block;width:14px;height:14px;border:2px solid currentColor;border-right-color:transparent;border-radius:50%;animation:sp .7s linear infinite;margin-right:8px;flex:none}
@@ -51,17 +83,18 @@ footer{text-align:center;color:var(--muted);font-size:11px;margin-top:18px}
 @media(prefers-reduced-motion:reduce){.spin{animation-duration:2s}}
 #refreshBtn:disabled{opacity:.7;cursor:progress}
 /* === Jendela login === */
-#login{position:fixed;inset:0;z-index:99;display:flex;align-items:center;justify-content:center;padding:16px;background:#0b1f3a;overflow:auto}
+#login{position:fixed;inset:0;z-index:99;display:flex;padding:16px;background:#0b1f3a;overflow:auto}
 #login .bg{position:absolute;inset:0;display:grid;grid-template-columns:1fr 1fr}
 #login .bg img{width:100%;height:100%;object-fit:cover;display:block}
 #login .bg::after{content:"";position:absolute;inset:0;background:rgba(11,31,58,.84)}
-.lwrap{position:relative;z-index:1;width:100%;max-width:420px}
-.lcard{background:#fff;border-radius:14px;border-top:5px solid var(--yellow);padding:24px 28px 26px;box-shadow:0 20px 50px #0009}
+.lwrap{position:relative;z-index:1;width:100%;max-width:420px;margin:auto}
+.lcard{position:relative;overflow:hidden;background:#fff;border-radius:14px;padding:29px 28px 26px;box-shadow:0 20px 50px #0009}
+.lcard::before{content:"";position:absolute;left:0;right:0;top:0;height:5px;background:var(--yellow)}
 .lcard .brand{justify-content:center;padding:0 0 14px;margin:0 0 16px;border-radius:0;border-bottom:1px solid var(--line)}
 .lcard h2{margin:0 0 4px;font-size:18px;color:var(--navy)}
 .lcard p{margin:0 0 16px;color:#667;font-size:13px}
 .pwrap{position:relative}
-.pwrap input{width:100%;padding:11px 46px 11px 12px;border:1px solid #cfd6e0;border-radius:8px;font-size:15px;font-family:inherit}
+.pwrap input{width:100%;padding:11px 46px 11px 12px;border:1px solid #cfd6e0;border-radius:8px;font-size:16px;font-family:inherit}
 .pwrap input:focus{outline:2px solid var(--navy2);outline-offset:0;border-color:transparent}
 .pwrap button{position:absolute;right:4px;top:50%;transform:translateY(-50%);width:38px;height:38px;border:0;background:none;cursor:pointer;color:#6b7789;border-radius:8px;display:flex;align-items:center;justify-content:center}
 .pwrap button:hover{background:#f2f4f7;color:var(--navy)}
@@ -79,7 +112,7 @@ footer{text-align:center;color:var(--muted);font-size:11px;margin-top:18px}
    <span class="sep"></span>
    <img src="assets/logo-scania.png" alt="Scania" onerror="this.style.display='none'">
   </div>
-  <div><h1>SCANIA DRIVER COMPETITION 2026</h1><p>Dashboard Customer · Progress Peningkatan Driver</p></div>
+  <div class="htitle"><h1>SCANIA DRIVER COMPETITION 2026</h1><p>Dashboard Customer · Progress Peningkatan Driver</p></div>
  </div>
  <div class="headright">
   <div class="tag">SAFETY · PRODUCTIVITY · FUEL EFFICIENCY</div>
@@ -118,10 +151,10 @@ footer{text-align:center;color:var(--muted);font-size:11px;margin-top:18px}
 <section class="toolbar">
  <div class="field"><label for="company">Perusahaan</label><select id="company"></select></div>
  <div class="field"><label for="category">Kategori</label><select id="category"></select></div>
- <div class="field"><label for="driver">Driver</label><select id="driver"></select></div>
+ <div class="field wide"><label for="driver">Driver</label><select id="driver"></select></div>
  <div class="field"><label for="period">Periode</label><select id="period"></select></div>
  <div class="field"><label>Data Google Sheets</label><button id="refreshBtn" type="button">↻ Refresh data</button></div>
- <div class="small" id="syncStatus" style="max-width:260px">—</div>
+ <div class="small sync" id="syncStatus">—</div>
 </section>
 <div class="who"><h2 id="driverName">—</h2><span class="small" id="driverMeta"></span></div>
 <div class="panelhead" style="margin-bottom:8px"><h2 id="curLabel" style="font-size:15px;color:var(--navy)">Hasil Bulan Ini</h2><span class="small" id="curHint">Panah = perubahan dibanding bulan sebelumnya</span></div>
@@ -129,7 +162,7 @@ footer{text-align:center;color:var(--muted);font-size:11px;margin-top:18px}
 <section class="panel"><div class="panelhead"><h2>Trend Parameter</h2><span class="small" id="trendNote"></span></div>
 <div class="chips" id="chips"></div><div id="chart"></div><div class="small" id="chartHint" style="margin-top:6px"></div></section>
 <section class="panel"><div class="panelhead"><h2>Riwayat Penilaian</h2><span class="small" id="countLabel"></span></div>
-<div class="scroll"><table><thead><tr><th>Periode</th><th>Tanggal</th><th>Theory</th><th>Overall Grade</th><th>Support</th><th>Fuel (km/l)</th><th>Brake/100 km</th><th>Accel/100 km</th><th>Jarak (km)</th></tr></thead><tbody id="history"></tbody></table></div></section>
+<div class="scroll"><table class="hist"><thead><tr><th>Periode</th><th>Tanggal</th><th>Theory</th><th>Overall Grade</th><th>Support</th><th>Fuel (km/l)</th><th>Brake/100 km</th><th>Accel/100 km</th><th>Jarak (km)</th></tr></thead><tbody id="history"></tbody></table></div></section>
 <footer>Scania Driver Competition 2026 · Dashboard Customer</footer>
 </main>
 <script>
@@ -146,7 +179,7 @@ const P=[
  {key:'brakeRate',label:'Harsh Brake / 100 km',unit:'',high:false,d:2,min:0,max:5,step:1,hint:'Lebih rendah lebih baik'},
  {key:'accelRate',label:'Harsh Acceleration / 100 km',unit:'',high:false,d:2,min:0,max:5,step:1,hint:'Lebih rendah lebih baik'}
 ];
-let sel='grade';
+let sel='grade',lastView=[],lastW=0;
 function esc(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
 function n(v){if(v===null||v===undefined||v==='')return null;let x=Number(String(v).replace(',','.'));return Number.isFinite(x)?x:null}
 function fmt(v,d=2){return v===null||v===undefined?'—':Number(v).toLocaleString('id-ID',{minimumFractionDigits:d,maximumFractionDigits:d})}
@@ -172,13 +205,18 @@ function drawChart(recs){
  const p=P.find(x=>x.key===sel);
  const pts=recs.map(r=>({x:cap(r.period).slice(0,3),v:n(r[p.key])})).filter(q=>q.v!==null);
  if(!pts.length){$('chart').innerHTML='<div class="empty">Belum ada data untuk parameter ini.</div>';$('trendNote').textContent='';return;}
- const W=820,H=300,L=56,R=26,T=30,B=40;
+ lastView=recs;
+ const cw=Math.round($('chart').clientWidth||820),narrow=cw<560,W=narrow?Math.max(280,cw):820,H=narrow?250:300,L=narrow?40:56,R=narrow?18:26,T=30,B=40;
  const lo=p.min,hi=p.max;
  const y=v=>T+(H-T-B)*(1-(Math.min(hi,Math.max(lo,v))-lo)/(hi-lo)),x=i=>pts.length===1?L+(W-L-R)/2:L+(W-L-R)*i/(pts.length-1);
  let s=`<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Trend ${esc(p.label)}">`;
  for(let v=lo;v<=hi+1e-9;v+=p.step){s+=`<line x1="${L}" x2="${W-R}" y1="${y(v)}" y2="${y(v)}" stroke="#e2e7ee"/><text x="${L-8}" y="${y(v)+4}" text-anchor="end" font-size="11" fill="#6b7789">${fmt(v,0)}</text>`}
  if(pts.length>1)s+=`<polyline fill="none" stroke="#203b61" stroke-width="3" stroke-linejoin="round" points="${pts.map((q,i)=>x(i)+','+y(q.v)).join(' ')}"/>`;
- pts.forEach((q,i)=>{const last=i===pts.length-1;s+=`<circle cx="${x(i)}" cy="${y(q.v)}" r="${last?7:5}" fill="${last?'#f6c900':'#fff'}" stroke="#203b61" stroke-width="3"/><text x="${x(i)}" y="${y(q.v)-13}" text-anchor="middle" font-size="12" font-weight="700" fill="#142744">${fmt(q.v,p.d)}</text><text x="${x(i)}" y="${H-14}" text-anchor="middle" font-size="12" fill="#6b7789">${esc(q.x)}</text>`});
+ pts.forEach((q,i)=>{const last=i===pts.length-1,showV=!(narrow&&pts.length>6)||i===0||last,showX=!(narrow&&pts.length>8)||i%2===0||last;
+  s+=`<circle cx="${x(i)}" cy="${y(q.v)}" r="${last?7:5}" fill="${last?'#f6c900':'#fff'}" stroke="#203b61" stroke-width="3"/>`
+   +(showV?`<text x="${x(i)}" y="${y(q.v)-13}" text-anchor="middle" font-size="12" font-weight="700" fill="#142744">${fmt(q.v,p.d)}</text>`:'')
+   +(showX?`<text x="${x(i)}" y="${H-14}" text-anchor="middle" font-size="12" fill="#6b7789">${esc(q.x)}</text>`:'');
+ });
  $('chart').innerHTML=s+'</svg>';
  if(pts.length>1){const d=pts[pts.length-1].v-pts[0].v,good=p.high?d>0:d<0;
   $('trendNote').innerHTML=`Perubahan ${esc(pts[0].x)} → ${esc(pts[pts.length-1].x)}: <b class="${Math.abs(d)<1e-9?'flat':good?'up':'down'}">${d>0?'+':d<0?'−':''}${fmt(Math.abs(d),p.d)}</b>`;
@@ -200,7 +238,7 @@ function render(){
  $('kpis').innerHTML=P.map(p=>{const [cl,t]=per==='ALL'?['flat','Rata-rata '+recs.length+' bulan']:delta(p,sum,pv);return `<div class="kpi"><div class="label">${p.label}</div><div class="value">${fmt(n(sum[p.key]),p.d)}${p.unit?`<span class="unit">${p.unit}</span>`:''}</div><div class="delta ${cl}">${esc(t)}</div></div>`}).join('');
  drawChart(view);
  $('countLabel').textContent=`${recs.length} penilaian`;
- $('history').innerHTML=recs.slice().reverse().map(r=>`<tr><td><b>${esc(cap(r.period))}</b></td><td>${esc(r.date)}</td><td>${fmt(n(r.theory))}</td><td>${fmt(n(r.grade))}</td><td>${fmt(n(r.support))}</td><td>${fmt(n(r.fuel))}</td><td>${fmt(n(r.brakeRate))}</td><td>${fmt(n(r.accelRate))}</td><td>${fmt(n(r.distance),0)}</td></tr>`).join('');
+ $('history').innerHTML=recs.slice().reverse().map(r=>`<tr><td data-label="Periode"><b>${esc(cap(r.period))}</b></td><td data-label="Tanggal">${esc(r.date)}</td><td data-label="Theory">${fmt(n(r.theory))}</td><td data-label="Overall Grade">${fmt(n(r.grade))}</td><td data-label="Support">${fmt(n(r.support))}</td><td data-label="Fuel (km/l)">${fmt(n(r.fuel))}</td><td data-label="Brake/100 km">${fmt(n(r.brakeRate))}</td><td data-label="Accel/100 km">${fmt(n(r.accelRate))}</td><td data-label="Jarak (km)">${fmt(n(r.distance),0)}</td></tr>`).join('');
 }
 $('chips').innerHTML=P.map(p=>`<button class="chip${p.key===sel?' on':''}" data-k="${p.key}">${p.label}</button>`).join('');
 $('chips').addEventListener('click',e=>{const b=e.target.closest('.chip');if(!b)return;sel=b.dataset.k;document.querySelectorAll('.chip').forEach(x=>x.classList.toggle('on',x===b));render();});
@@ -304,5 +342,7 @@ $('company').addEventListener('change',()=>{fillCategories();fillDrivers();rende
 $('category').addEventListener('change',()=>{fillDrivers();render()});
 $('driver').addEventListener('change',()=>{fillPeriods();render()});
 $('period').addEventListener('change',render);
+let rzT;window.addEventListener('resize',()=>{clearTimeout(rzT);rzT=setTimeout(()=>{if(window.innerWidth!==lastW&&lastView.length){lastW=window.innerWidth;drawChart(lastView)}},150)});
+lastW=window.innerWidth;
 try{const saved=sessionStorage.getItem('sdcpw');if(saved)login(saved)}catch(e){}
 </script></body></html>
