@@ -142,7 +142,7 @@ footer{text-align:center;color:var(--muted);font-size:11px;margin-top:18px}
     <img src="assets/logo-scania.png" alt="Scania" onerror="this.style.display='none'">
    </div>
    <h2>SCANIA DRIVER COMPETITION 2026</h2>
-   <p>Masukkan password perusahaan Anda untuk melihat progres driver.</p>
+   <p>Masukkan password Anda (perusahaan atau peserta) untuk melihat progres driver.</p>
    <div class="pwrap" id="pwWrap">
     <input id="pw" type="password" placeholder="Password" autocomplete="off" aria-label="Password">
     <button id="pwToggle" type="button" aria-label="Tampilkan password" aria-pressed="false"><svg class="ico-on" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg><svg class="ico-off" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg></button>
@@ -250,8 +250,8 @@ $('chips').innerHTML=P.map(p=>`<button class="chip${p.key===sel?' on':''}" data-
 $('chips').addEventListener('click',e=>{const b=e.target.closest('.chip');if(!b)return;sel=b.dataset.k;document.querySelectorAll('.chip').forEach(x=>x.classList.toggle('on',x===b));render();});
 function parseDate(v){if(v instanceof Date)return v.toISOString().slice(0,10);if(typeof v==='number'){let d=XLSX.SSF.parse_date_code(v);return d?`${d.y}-${String(d.m).padStart(2,'0')}-${String(d.d).padStart(2,'0')}`:''}return String(v||'')}
 /* ====== KONFIGURASI ======
-   Tempel URL Web App Google Apps Script (berakhiran /exec) di bawah ini. */
-const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbx2ItYga-LxTz4aiXlhTZWfeshKXSVac063s-jgpQ_EJVhbAgQ7aisHfzba2PeH2cFJ/exec';
+   URL Web App Google Apps Script (berakhiran /exec). */
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxqPVCWSSr1JgBZ3d_CwQ0Byd7IBTq_GbIeMJXyIdz43RwEafFAlBlTOumbBbz_7SRp/exec';
 const AUTO_REFRESH_MIN = 5;
 let session=null,timer=null;
 function parseRows(arr){
@@ -278,11 +278,21 @@ function parseRows(arr){
  if(!parsed.length)throw new Error('Tidak ada baris peserta pada sheet Data Penilaian.');
  return parsed;
 }
+/* Peserta: sembunyikan filter Perusahaan & Driver (hanya 1 pilihan).
+   Kategori hanya disembunyikan jika peserta punya 1 kategori. */
+function applyRoleUI(){
+ const solo=!!session&&session.role==='peserta';
+ const hide=(id,h)=>{const f=$(id).closest('.field');if(f)f.style.display=h?'none':''};
+ hide('company',solo);
+ hide('driver',solo);
+ hide('category',solo&&$('category').options.length<=1);
+}
 function applyData(parsed){
  const c=$('category').value,d=$('driver').value;
  allData=parsed;initFilters();
  const keep=(id,v)=>{if(v&&[...$(id).options].some(o=>o.value===v))$(id).value=v};
  fillCategories();keep('category',c);fillDrivers();keep('driver',d);fillPeriods();
+ applyRoleUI();
  render();
 }
 function setStatus(t,err){const s=$('syncStatus');if(s){s.textContent=t;s.style.color=err?'#c0392b':''}}
@@ -300,6 +310,7 @@ async function loadData(){
  try{
   setStatus('Memuat data…');
   const out=await fetchData(session.pw);
+  if(out.role)session.role=out.role;
   const parsed=parseRows(out.rows);applyData(parsed);
   setStatus('Diperbarui '+new Date().toLocaleTimeString('id-ID')+' · '+parsed.length+' baris');
  }catch(err){setStatus('Gagal sinkron: '+err.message+' (menampilkan data terakhir)',true)}
@@ -311,14 +322,14 @@ async function login(pw){
  msg.textContent='';btn.disabled=true;btn.innerHTML='<span class="spin"></span>Memeriksa…';
  try{
   const out=await fetchData(pw);
-  session={pw,company:out.company};
+  session={pw,company:out.company,role:out.role||'customer'};
   try{sessionStorage.setItem('sdcpw',pw)}catch(e){}
   applyData(parseRows(out.rows));
   $('company').disabled=$('company').options.length<=1; // admin (banyak perusahaan) bisa memilih
   $('login').style.display='none';
   setStatus('Diperbarui '+new Date().toLocaleTimeString('id-ID'));
   clearInterval(timer);timer=setInterval(loadData,AUTO_REFRESH_MIN*60000);
- }catch(err){msg.textContent=err.message;try{sessionStorage.removeItem('sdcpw')}catch(e){}}
+ }catch(err){session=null;msg.textContent=err.message;try{sessionStorage.removeItem('sdcpw')}catch(e){}}
  finally{btn.disabled=false;btn.textContent='Masuk'}
 }
 $('loginBtn').addEventListener('click',()=>login($('pw').value.trim()));
@@ -335,6 +346,7 @@ function logout(){
  allData=[];
  ['company','category','driver','period'].forEach(id=>{$(id).innerHTML=''});
  $('company').disabled=false;
+ ['company','category','driver'].forEach(id=>{$(id).closest('.field').style.display=''});
  ['kpis','chart','history'].forEach(i=>{$(i).innerHTML=''});
  $('driverName').textContent='—';$('driverMeta').textContent='';$('trendNote').textContent='';$('chartHint').textContent='';
  $('pw').value='';$('pw').type='password';$('pwWrap').classList.remove('show');
